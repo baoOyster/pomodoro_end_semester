@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --header-height: 80px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+body {
+  background-color: #FFF0F0;
+}
