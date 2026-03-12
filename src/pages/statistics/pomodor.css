@@ -1,0 +1,84 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.Switch_timeOptions{
+    width: fit-content;
+    display: flex;
+    margin-top: 30px ;
+    margin-left: 20px ;
+    gap: 12px;
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 12px;
+}
+.Switch_timeOptions button{
+    height: 40px;
+    background-color: #fff;
+    padding: 8px;
+    border: none;
+    color: #94A3B8;
+}
+.Switch_timeOptions button:hover{
+    background-color: #F1F5F9;
+    color: #475569;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+#general_container {
+    display: grid;
+    margin: 30px 20px 0 20px; 
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: center;
+    gap: 24px
+}
+.general-statistic{
+    width: 100%;
+    height: 150px;
+    border-radius: 16px;
+    background-color: #FFFFFF;
+    padding: 24px;
+}
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.statistic-title{
+    font-size: 18px;
+    color: #64748B;
+    margin-bottom: 8px;
+}
+#general_container h3{
+    font-size: 32px;
+    color: #1E293B;
+    margin-bottom: 16px;
+}
+.Counting{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.Counting span{
+    font-size: 14px;
+    color: #94A3B8;
+}
+.evaluate{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.evaluate span,p{
+    font-size: 14px;
+    color: #94A3B8;
+}
+
+#highestStreakCount, #evaluateTask, #evaluateTime{
+    color: #10B981;
+}
+
+.general-statistic:hover{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
