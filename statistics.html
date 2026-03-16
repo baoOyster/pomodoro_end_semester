@@ -4,10 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics</title>
+    <link rel="stylesheet" href="/src/pages/statistics/statistics.css">
 </head>
 <body>
     <header></header>
-    <main></main>
+    <main>
+        <div class="Switch_timeOptions">
+            <button id="todayButton">Hôm nay</button>
+            <button id="weekButton">Tuần này</button>
+            <button id="monthButton">Tháng này</button>
+        </div>
+        <div id="general_container">
+            <div class="general-statistic" id="totaltimecontainer">
+                <div class="contentContainer">
+                    <p class="statistic-title">Tổng thời gian</p>
+                    <div class="Counting">
+                        <h3 id="totalTime"><strong>0000</strong></h3>
+                        <span>giờ</span>
+                    </div>
+                    <div class="evaluate">
+                        <p id="evaluateTime">000%</p>
+                        <span>review</span>
+                    </div>
+                </div>
+            </div>
+            <div class="general-statistic" id="totalDoneTaskContainer">
+                <div class="contentContainer">
+                    <p class="statistic-title">Hoàn thành</p>
+                    <div class="Counting">
+                        <h3 id="totalDoneTasks"><strong>0000</strong></h3>
+                        <span>nhiệm vụ</span>
+                    </div>
+                    <div class="evaluate">
+                        <p id="evaluateTask">000%</p>
+                        <span>review</span>
+                    </div>
+                </div>
+            </div>
+            <div class="general-statistic" id="streak">
+                <div class="contentContainer">
+                    <p class="statistic-title">Chuỗi ngày</p>
+                    <h3 id="streakCount"><strong>0000</strong></h3>
+                    <div class="evaluate">
+                        <p>Kỉ lục:</p>
+                        <p id="highestStreakCount"><strong>0000</strong></p>
+                        <span>ngày</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="statistic_container"></div>
+        <div class="History_table_container">
+            <div id="title">
+                <h2>Lịch sử</h2>
+                <button>Xem tất cả</button>
+            </div>
+            <table id="history_table">
+                <thead>
+                    <tr>
+                        <th>Nhiệm vụ</th>
+                        <th>Thời lượng</th>
+                        <th>Số lần dừng</th>
+                        <th>Trạng thái</th>
+                        <th>thời gian hoàn thành</th>
+                    </tr>
+                </thead>
+                <tbody id="history_table_body">
+                    
+                </tbody>
+            </table>
+        </div>
+    </main>
     <script type="module" src="/src/shared/main.js"></script>
 </body>
 </html>
