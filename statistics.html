@@ -9,70 +9,172 @@
 <body>
     <header></header>
     <main>
-        <div class="Switch_timeOptions">
-            <button id="todayButton">Hôm nay</button>
-            <button id="weekButton">Tuần này</button>
-            <button id="monthButton">Tháng này</button>
-        </div>
-        <div id="general_container">
-            <div class="general-statistic" id="totaltimecontainer">
-                <div class="contentContainer">
-                    <p class="statistic-title">Tổng thời gian</p>
-                    <div class="Counting">
-                        <h3 id="totalTime"><strong>0000</strong></h3>
-                        <span>giờ</span>
+         <div class="all_statistic_page_container">
+            <div class="general_tag">
+                <div id="today_total_time" class="general_tag_item">
+                    <p id="total_time_title">Tổng thời gian đã tập trung hôm nay:</p>
+                    <h1 class="value_display" id="today_total_time_value">0 giờ 0 phút</h1>
+                </div>
+                <div id="process" class="general_tag_item">
+                    <p class="general_title">tiến độ hiện tại:  <span id="progress_percentage">0%</span></p>
+                    <div class="value_display" id="current_progress_container">
                     </div>
-                    <div class="evaluate">
-                        <p id="evaluateTime">000%</p>
-                        <span>review</span>
+                </div>
+                <div id="current_task" class="general_tag_item">
+                    <p class="general_title">task hiện tại:</p>
+                    <h1 class="value_display" id="current_task_name"></h1>
+                </div>
+            </div>
+            <div id="statistic_heat_map_container">
+                <div id="month_header" >
+                    <div class="space"></div>
+                    <span>jan</span>
+                    <span>feb</span>
+                    <span>mar</span>
+                    <span>apr</span>
+                    <span>may</span>
+                    <span>jun</span>
+                    <span>jul</span>
+                    <span>aug</span>
+                    <span>sep</span>
+                    <span>oct</span>
+                    <span>nov</span>
+                    <span>dec</span>
+                </div>
+                <div id="statistic_heat_map">
+                    <div class="day_sidebar">
+                        <span>mon</span>
+                        <span></span>
+                        <span>wed</span>
+                        <span></span>
+                        <span>fri</span>
+                        <span></span>
+                        <span>sun</span>
+                    </div>
+                    <div class="square_grid">   
+                    </div>
+                </div>
+                <div class="contribute_chart">
+                    <p>Less</p>
+                    <div class="chart">
+                        <div class="heat_color" id="one"></div>
+                        <div class="heat_color" id="two"></div>
+                        <div class="heat_color" id="three"></div>
+                        <div class="heat_color" id="four"></div>
+                        <div class="heat_color" id="five"></div>
+                    </div>
+                    <p>More</p>
+                </div>    
+            </div>
+            <div class="calendar_and_chart">
+                <div class="calendar_container">
+                    <div id="calendar_and_streak">
+                        <h1>Month YYYY 
+                            <span>
+                                <img src="/src/assets/images/chevron_left.svg" id="go_back" alt="chevron-left">
+                                <img src="/src/assets/images/chevron_right.svg" id="go_forward" alt="chevron-right">
+                            </span>
+                        </h1>
+                    </div>
+                    <hr>
+                    <div id="day_in_W_M">
+                        <div id="day_in_week">
+                            <span>Mo</span>
+                            <span>Tu</span>
+                            <span>We</span>
+                            <span>Th</span>
+                            <span>Fr</span>
+                            <span>Sa</span>
+                            <span>Su</span>
+                        </div>
+                        <div id="day_in_month">
+                            <span class="day">1</span>
+                            <span class="day">2</span>
+                            <span class="day">3</span>
+                            <span class="day">4</span>
+                            <span class="day">5</span>
+                            <span class="day">6</span>
+                            <span class="day">7</span>
+                            <span class="day">8</span>
+                            <span class="day">9</span>
+                            <span class="day">10</span>
+                            <span class="day">11</span>
+                            <span class="day">12</span>     
+                            <span class="day">13</span>
+                            <span class="day">14</span>
+                            <span class="day">15</span>
+                            <span class="day">16</span>
+                            <span class="day">17</span>
+                            <span class="day">18</span>
+                            <span class="day">19</span>
+                            <span class="day">20</span>
+                            <span class="day">21</span>
+                            <span class="day">22</span>
+                            <span class="day">23</span>
+                            <span class="day">24</span>
+                            <span class="day">25</span>
+                            <span class="day">26</span>
+                            <span class="day">27</span>
+                            <span class="day">28</span>
+                            <span class="day">29</span>
+                            <span class="day">30</span>
+                            <span class="day">31</span> 
+                        </div>
+                    </div>
+                </div>
+                <div class="chart_container">
+                    <div class="left_col">
+
+                        <h1>How did you spend your time?</h1>
+                        <div class="chart_wrapper">
+                           
+                            <div id="bar_chart">
+                                <div class="bar" id="bar6a-12a">
+                                    <p class="timelable">6am - 12am</p>
+                                    <div class="bar_frame" >
+                                        <div class="track" id="track_morning"></div>
+                                    </div>
+                                </div>
+                                <div class="bar" id="bar12a-6p">
+                                    <p class="timelable">12am - 6pm</p>
+                                    <div class="bar_frame">
+                                        <div class="track" id="track_afternoon"></div>
+                                    </div>
+                                </div>
+                                <div class="bar" id="bar6p-12p">
+                                    <p class="timelable">6pm - 12pm</p>
+                                    <div class="bar_frame" >
+                                        <div class="track" id="track_evening"></div>
+                                    </div>
+                                </div>
+                                <div class="bar" id="bar12p-6a">
+                                    <p class="timelable">12pm - 6am</p>
+                                    <div class="bar_frame">
+                                        <div class="track" id="track_night"></div>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div id="Y_Axis">
+                                <div class="line"><span class="num">0</span></div>
+                                <div class="line"><span class="num">3</span></div>
+                                <div class="line"><span class="num">6</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right_col" >
+                        <div id="donut_chart"></div>
+                        <div id="task_label">
+                            <div></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="general-statistic" id="totalDoneTaskContainer">
-                <div class="contentContainer">
-                    <p class="statistic-title">Hoàn thành</p>
-                    <div class="Counting">
-                        <h3 id="totalDoneTasks"><strong>0000</strong></h3>
-                        <span>nhiệm vụ</span>
-                    </div>
-                    <div class="evaluate">
-                        <p id="evaluateTask">000%</p>
-                        <span>review</span>
-                    </div>
+            <div class="total_accompany_time">
+                <h1 id="label_totaltime">Tổng thời gian bạn đã đồng hành cùng <span id="project_name">CMC Timer</span>:</h1>
+                <div id="totaltime_container">
+                    <h1 id="total_time_value"> <span id="total_hour">0</span> giờ <span id="total_minute">0</span> phút</h1>
                 </div>
             </div>
-            <div class="general-statistic" id="streak">
-                <div class="contentContainer">
-                    <p class="statistic-title">Chuỗi ngày</p>
-                    <h3 id="streakCount"><strong>0000</strong></h3>
-                    <div class="evaluate">
-                        <p>Kỉ lục:</p>
-                        <p id="highestStreakCount"><strong>0000</strong></p>
-                        <span>ngày</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="statistic_container"></div>
-        <div class="History_table_container">
-            <div id="title">
-                <h2>Lịch sử</h2>
-                <button>Xem tất cả</button>
-            </div>
-            <table id="history_table">
-                <thead>
-                    <tr>
-                        <th>Nhiệm vụ</th>
-                        <th>Thời lượng</th>
-                        <th>Số lần dừng</th>
-                        <th>Trạng thái</th>
-                        <th>thời gian hoàn thành</th>
-                    </tr>
-                </thead>
-                <tbody id="history_table_body">
-                    
-                </tbody>
-            </table>
         </div>
     </main>
     <script type="module" src="/src/shared/main.js"></script>
