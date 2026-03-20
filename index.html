@@ -5,10 +5,59 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pomodoro</title>
+    <link rel="stylesheet" href="./src/pages/pomodoro/pomodor.css">
   </head>
   <body>
     <header></header>
-    <main></main>
+    <main>
+      <img src="./src/assets/images/circle_back.svg" id="circle_back">
+      <div id="clock">
+        <img src="./src/assets/images/logo_background.svg" >
+        <div id="timer_label">25:00</div>
+        <div id="task_name" style="display: flex; gap: 10px;">
+          <p>Task:</p>
+          <p>Học Toán</p> <!--sửa chỗ này thành task mà người dùng đã chọn-->
+        </div>
+      </div>
+      <svg width="655" height="632" viewBox="0 0 655 632" fill="none" xmlns="http://www.w3.org/2000/svg" id="circle_countdown">
+          <g filter="url(#filter0_d_509_965)">
+          <path id="progress_path" d="M327.383 15C497.108 15.0002 635.764 147.177 635.765 311.515C635.765 475.853 497.108 608.03 327.383 608.03C157.658 608.03 19 475.853 19 311.515C19.0002 147.176 157.658 15 327.383 15Z" stroke="#FF7C7C" stroke-width="30" shape-rendering="crispEdges"/>
+          </g>
+          <defs>
+          <filter id="filter0_d_509_965" x="0" y="0" width="654.765" height="631.03" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset dy="4"/>
+          <feGaussianBlur stdDeviation="2"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_509_965"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_509_965" result="shape"/>
+          </filter>
+          </defs>
+      </svg>
+      <div id="icons">
+        <img src="./src/assets/images/restart.svg" id="btn_restart" class="btn" style="cursor: pointer;">
+        <div id="pomodoro"> <!-- số quả cà chua được tô màu, không tô màu sẽ phải thay đổi theo số lần section hoàn thành, manh đang làm tĩnh-->
+          <div>
+            <img src="./src/assets/images/Logo.svg" class="tomato">
+            <img src="./src/assets/images/Logo.svg" class="tomato">
+            <img src="./src/assets/images/Logo.svg" class="tomato">
+            <img src="./src/assets/images/Logo_transfer.svg" class="tomato">
+            <img src="./src/assets/images/Logo_transfer.svg" class="tomato">
+          </div>
+          <div id="sections" style="display: flex; gap: 5px;"> <!-- sô section sẽ thay đổi-->
+            <p>3</p>
+            <p>of</p>
+            <p>5</p>
+            <p>sections</p>
+          </div>
+        </div>
+        <img src="./src/assets/images/stop.svg" id="btn_stop" class="btn" style="cursor: pointer;">
+      </div>
+    </main>
     <script type="module" src="/src/shared/main.js"></script>
+    <script src="./src/pages/pomodoro/pomodoro.js"></script>
   </body>
 </html>
+

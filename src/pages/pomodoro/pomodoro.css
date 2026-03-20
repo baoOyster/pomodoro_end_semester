@@ -1,0 +1,95 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+
+}
+
+html,body{
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+main{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+#circle_back{
+    width: 4200px;
+    position: absolute;
+    margin-left: -1000px;
+    top: 400px;
+    
+}
+
+#clock{
+    position: absolute;
+    top: 40px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#circle_countdown{
+    position: absolute;
+    top: 120px;
+}
+#progress_path {
+    transition: stroke-dashoffset 1s linear;
+    stroke-linecap: round;
+}
+#timer_label {
+    position: absolute;
+    font-size: 140px; 
+    font-weight: 800;
+    color: #471515;
+    top: 270px;
+}
+#task_name{
+    position: absolute;
+    font-size: 30px; 
+    font-weight: bold;
+    color: #9B9B9B;
+    top:530px;
+}
+#icons{
+    position: absolute;
+    top: 820px;
+    display: flex;
+    align-items: center;  
+    gap: 80px;
+}
+
+#pomodoro {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;  
+}
+
+.tomato{
+    padding: 0 10px;
+    width: 55px;
+    height: auto;
+}
+#sections p{
+    color: #767676;
+    font-style: italic;
+}
+.btn:hover{
+    transform: scale(1.1);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
