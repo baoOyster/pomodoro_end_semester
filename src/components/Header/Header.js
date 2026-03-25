@@ -10,6 +10,7 @@ import Close from '../../assets/images/Close.svg';
 class Header  {
     #header;
     #nav;
+    #nav;
     #popup;
     #menu = [
         {
@@ -52,6 +53,7 @@ class Header  {
             </div>
         `;
 
+        this.#nav = this.#header.querySelector('.navigation');
         this.#nav = this.#header.querySelector('.navigation');
         this.#popup = this.#header.querySelector('.popup');
 
