@@ -1,0 +1,8 @@
+.settings-menu div {
+    cursor: pointer;
+}
+
+.settings-actions {
+    display: flex;
+    justify-content: space-between;
+}
