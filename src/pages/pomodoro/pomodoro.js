@@ -1,3 +1,6 @@
+// import Running from '../../assets/images/stop.svg';
+// import Pause from '../../assets/images/pause.svg';
+
 window.addEventListener('load', () => {
     const progressPath = document.getElementById('progress_path');
     const timerLabel = document.getElementById('timer_label'); 
@@ -36,7 +39,7 @@ window.addEventListener('load', () => {
 
                 if (timePassed >= totalTime) {
                     stopTimer();
-                    alert("Hết giờ!");
+                    alert("Hết giờ!"); // chỗ này sẽ chuyển thành nhảy lên chuông báo (cái mà người dùng cài trong setting)
                 }
             }, 1000);
         }
@@ -48,19 +51,24 @@ window.addEventListener('load', () => {
     }
 
     btnStop.addEventListener('click', () => {
+        const playBtn = document.getElementById('btn_stop');
         if (isRunning) {
+            // playBtn.src = '../../assets/images/pause.svg';
             stopTimer();
         } else {
+            // playBtn.src = '../../assets/images/stop.svg';
             startTimer();
+            
         }
     });
-
+    
     btnRestart.addEventListener('click', () => {
         stopTimer();
         timePassed = 0;
         updateVisual();
         startTimer();
     });
+
 
     updateVisual();
 });

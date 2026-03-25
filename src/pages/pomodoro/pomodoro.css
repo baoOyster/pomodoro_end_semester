@@ -82,9 +82,16 @@ main{
     width: 55px;
     height: auto;
 }
+#sections {
+    display: flex; 
+    gap: 5px;
+}
 #sections p{
     color: #767676;
     font-style: italic;
+}
+.btn{
+    cursor: pointer;
 }
 .btn:hover{
     transform: scale(1.1);
