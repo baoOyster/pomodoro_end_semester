@@ -337,3 +337,112 @@
 .settings-save-btn:hover {
     background-color: #e86060 !important;
 }
+
+.settings-save-btn:disabled {
+    background-color: #a8a8a8 !important;
+    cursor: default;
+}
+
+.settings-mode-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ffd8d8;
+}
+
+.settings-mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.settings-mode-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #ffd8d8;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
+}
+
+.settings-mode-dot {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.settings-mode-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.settings-mode-text strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    transition: color 0.15s;
+}
+
+.settings-mode-text span {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.4;
+}
+
+.settings-mode-btn--active {
+    border-color: #FF7C7C;
+    background: #fff5f5;
+}
+
+.settings-mode-btn--active .settings-mode-dot {
+    border-color: #FF7C7C;
+    background: #FF7C7C;
+}
+
+.settings-mode-btn--active .settings-mode-text strong {
+    color: #FF7C7C;
+}
+
+.settings-custom-sound-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-custom-sound-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #ffd8d8;
+    font-size: 14px;
+    color: #333;
+}
+
+.settings-custom-sound-item .settings-account-switch-btn {
+    padding: 0;
+    border: none !important;
+    border-radius: 0;
+}
+
+.settings-custom-sound-item .settings-account-switch-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.settings-custom-sound-item .settings-account-switch-btn img {
+    width: 16px;
+    height: 16px;
+}

@@ -1,6 +1,7 @@
 import './Settings.css';
 import Toggle from '../ToggleBtn/ToggleBtn';
 import Tomato from '../../assets/images/tomato.svg';
+import Close from '../../assets/images/Close.svg';
 
 export default class Settings {
     #settingsContainer;
@@ -20,6 +21,7 @@ export default class Settings {
         'alertVolume',
         'geminiApiKey',
         'customSounds',
+        'endlessMode',
     ];
 
     #defaults = {
@@ -38,6 +40,7 @@ export default class Settings {
         alertVolume:              '50',
         geminiApiKey:             '',
         customSounds:             '{}',
+        endlessMode:              'false',
     };
 
     /**
@@ -82,8 +85,16 @@ export default class Settings {
         this.#settingsContainer.querySelector('.settings-reset-btn')
             .addEventListener('click', () => this.#resetAll());
 
-        this.#settingsContainer.querySelector('.settings-save-btn')
-            .addEventListener('click', () => this.#saveCurrentAccount());
+        const saveBtn = this.#settingsContainer.querySelector('.settings-save-btn');
+        saveBtn.addEventListener('click', () => {
+            this.#saveCurrentAccount();
+            saveBtn.textContent = 'Saved';
+            saveBtn.disabled = true;
+            setTimeout(() => {
+                saveBtn.textContent = 'Save changes';
+                saveBtn.disabled = false;
+            }, 1000);
+        });
 
         this.#navigate('general');
     }
@@ -159,6 +170,7 @@ export default class Settings {
 
         account.settings = { ...this.#draft };
         localStorage.setItem('accounts', JSON.stringify(accounts));
+        window.dispatchEvent(new CustomEvent('settings-saved'));
     }
 
     /** Called by Header whenever the popup is opened — resets draft to last saved state. */
@@ -201,9 +213,9 @@ export default class Settings {
 
     #renderTimers() {
         [
-            { label: 'Pomodoro (minutes)',    key: 'pomodoroMinutes',   min: 1, max: 90 },
-            { label: 'Short break (minutes)', key: 'shortBreakMinutes', min: 1, max: 30 },
-            { label: 'Long break (minutes)',  key: 'longBreakMinutes',  min: 1, max: 60 },
+            { label: 'Pomodoro (minutes)',    key: 'pomodoroMinutes',   min: 15, max: 60 },
+            { label: 'Short break (minutes)', key: 'shortBreakMinutes', min: 5,  max: 10 },
+            { label: 'Long break (minutes)',  key: 'longBreakMinutes',  min: 15, max: 20 },
         ].forEach(({ label, key, min, max }) => {
             this.#settingsContent.appendChild(
                 this.#createRow(label, this.#createNumberInput(key, min, max))
@@ -211,7 +223,7 @@ export default class Settings {
         });
 
         this.#settingsContent.appendChild(
-            this.#createToggleRow('Use pomodoro sequence', 'usePomodoroSequence', 'Pomodoro → short break, repeat 4x, then one long break')
+            this.#createModeSelector()
         );
     }
 
@@ -259,16 +271,51 @@ export default class Settings {
 
         this.#settingsContent.appendChild(this.#createRow('Alert volume', range));
 
+        // Custom sounds list
+        const customSoundKeys = Object.keys(customSounds);
+        if (customSoundKeys.length > 0) {
+            const list = document.createElement('div');
+            list.classList.add('settings-custom-sound-list');
+
+            customSoundKeys.forEach(name => {
+                const item = document.createElement('div');
+                item.classList.add('settings-custom-sound-item');
+
+                const nameEl = document.createElement('span');
+                nameEl.textContent = name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('settings-account-switch-btn');
+                removeBtn.innerHTML = `<img src="${Close}" alt="Remove" />`;
+                removeBtn.addEventListener('click', () => {
+                    const sounds = JSON.parse(this.#draft['customSounds'] ?? '{}');
+                    delete sounds[name];
+                    this.#draft['customSounds'] = JSON.stringify(sounds);
+                    if (this.#draft['soundsAlertSound'] === name) {
+                        this.#draft['soundsAlertSound'] = 'Lofi';
+                    }
+                    this.#navigate('sounds');
+                });
+
+                item.append(nameEl, removeBtn);
+                list.appendChild(item);
+            });
+
+            this.#settingsContent.appendChild(
+                this.#createRow('Custom sounds', list, 'Your uploaded audio files')
+            );
+        }
+
         const uploadBtn = document.createElement('button');
         uploadBtn.classList.add('settings-upload-sound-btn');
         uploadBtn.textContent = 'Upload sound';
-        uploadBtn.addEventListener('click', () => this.#showUploadSoundPopup(select));
+        uploadBtn.addEventListener('click', () => this.#showUploadSoundPopup());
         this.#settingsContent.appendChild(
-            this.#createRow('Custom sound', uploadBtn, 'Upload your own audio file')
+            this.#createRow('Add sound', uploadBtn, 'Upload your own audio file')
         );
     }
 
-    #showUploadSoundPopup(select) {
+    #showUploadSoundPopup() {
         const overlay = document.createElement('div');
         overlay.classList.add('settings-password-overlay');
 
@@ -285,6 +332,7 @@ export default class Settings {
         const nameInput = document.createElement('input');
         nameInput.type = 'text';
         nameInput.placeholder = 'e.g. My alarm';
+        nameInput.maxLength = 20;
         nameInput.classList.add('settings-account-input');
 
         const fileLabel = document.createElement('label');
@@ -317,25 +365,22 @@ export default class Settings {
             const name = nameInput.value.trim();
             const file = fileInput.files[0];
 
-            if (!name) { error.textContent = 'Please enter a sound name.'; return; }
-            if (!file)  { error.textContent = 'Please select an audio file.'; return; }
+            const existingSounds = JSON.parse(this.#draft['customSounds'] ?? '{}');
+            if (!name)              { error.textContent = 'Please enter a sound name.'; return; }
+            if (name.length > 20)   { error.textContent = 'Name must be 20 characters or less.'; return; }
+            if (!file)              { error.textContent = 'Please select an audio file.'; return; }
+            if (Object.keys(existingSounds).length >= 3 && !existingSounds[name]) {
+                error.textContent = 'Maximum 3 custom sounds allowed.'; return;
+            }
 
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const customSounds = JSON.parse(this.#draft['customSounds'] ?? '{}');
                 customSounds[name] = ev.target.result;
                 this.#draft['customSounds'] = JSON.stringify(customSounds);
-
-                const exists = [...select.options].some(o => o.value === name);
-                if (!exists) {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    select.insertBefore(option, select.lastElementChild);
-                }
-                select.value = name;
                 this.#draft['soundsAlertSound'] = name;
                 close();
+                this.#navigate('sounds');
             };
             reader.onerror = () => { error.textContent = 'Failed to read the file.'; };
             reader.readAsDataURL(file);
@@ -572,15 +617,62 @@ export default class Settings {
         return this.#createRow(label, toggle.element, description);
     }
 
+    #createModeSelector() {
+        const modes = [
+            { key: 'usePomodoroSequence', label: 'Pomodoro sequence', description: 'Pomodoro → short break, repeat 4×, then one long break' },
+            { key: 'endlessMode',         label: 'Endless mode',      description: 'No breaks — counts up after each session until you stop' },
+        ];
+
+        const activeKey = this.#draft['endlessMode'] === 'true'
+            ? 'endlessMode'
+            : 'usePomodoroSequence';
+
+        const section = document.createElement('div');
+        section.classList.add('settings-mode-section');
+
+        const labelEl = document.createElement('span');
+        labelEl.classList.add('settings-row-label');
+        labelEl.textContent = 'Mode';
+        section.appendChild(labelEl);
+
+        const grid = document.createElement('div');
+        grid.classList.add('settings-mode-grid');
+
+        modes.forEach(({ key, label, description }) => {
+            const btn = document.createElement('button');
+            btn.classList.add('settings-mode-btn');
+            if (key === activeKey) btn.classList.add('settings-mode-btn--active');
+            btn.innerHTML = `
+                <span class="settings-mode-dot"></span>
+                <span class="settings-mode-text">
+                    <strong>${label}</strong>
+                    <span>${description}</span>
+                </span>`;
+            btn.addEventListener('click', () => {
+                this.#draft['usePomodoroSequence'] = key === 'usePomodoroSequence' ? 'true' : 'false';
+                this.#draft['endlessMode']         = key === 'endlessMode'         ? 'true' : 'false';
+                grid.querySelectorAll('.settings-mode-btn').forEach(b => b.classList.remove('settings-mode-btn--active'));
+                btn.classList.add('settings-mode-btn--active');
+            });
+            grid.appendChild(btn);
+        });
+
+        section.appendChild(grid);
+        return section;
+    }
+
     #createNumberInput(key, min, max) {
         const input = document.createElement('input');
         input.type = 'number';
         input.classList.add('settings-number-input');
         input.min = min;
         input.max = max;
+        input.step = 1;
         input.value = this.#draft[key] ?? this.#defaults[key];
         input.addEventListener('change', () => {
-            this.#draft[key] = input.value;
+            const val = Math.round(Math.min(max, Math.max(min, Number(input.value))));
+            input.value = val;
+            this.#draft[key] = String(val);
         });
         return input;
     }
