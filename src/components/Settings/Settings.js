@@ -19,7 +19,7 @@ export default class Settings {
         'soundsAlertSound',
         'playSoundWhenTimerFinish',
         'alertVolume',
-        'geminiApiKey',
+        'groqApiKey',
         'customSounds',
         'endlessMode',
     ];
@@ -38,7 +38,7 @@ export default class Settings {
         soundsAlertSound:         'Lofi',
         playSoundWhenTimerFinish: 'true',
         alertVolume:              '50',
-        geminiApiKey:             '',
+        groqApiKey:             '',
         customSounds:             '{}',
         endlessMode:              'false',
     };
@@ -459,11 +459,21 @@ export default class Settings {
     }
 
     #renderAIAgent() {
+        const notice = document.createElement('div');
+        notice.classList.add('settings-agent-notice');
+        notice.innerHTML = `
+            <strong>Security notice</strong>
+            Use a <em>free-tier</em> API key only. Never paste a paid or production key here —
+            it is stored in your browser's localStorage and is not encrypted.
+            Get a free key at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>.
+        `;
+        this.#settingsContent.appendChild(notice);
+
         [
             {
-                label:      'Gemini API Key',
-                key:        'geminiApiKey',
-                description: 'Used for AI-powered features. Get yours at aistudio.google.com',
+                label:      'Groq API Key',
+                key:        'groqApiKey',
+                description: 'Stored locally in your browser. Reload the page after saving.',
             },
         ].forEach(({ label, key, description }) => {
             const wrapper = document.createElement('div');

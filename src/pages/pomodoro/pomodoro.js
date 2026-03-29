@@ -46,6 +46,7 @@ class PomodoroTimer {
     #sessionIndex     = 0;
     #completedInCycle = 0;
     #isCounting       = false; // endless count-up mode
+    #pauseCount       = 0;
 
     constructor() {
         this.#main = document.querySelector('main');
@@ -56,6 +57,7 @@ class PomodoroTimer {
         this.#applyMode();
         this.#bindEvents();
         if (this.#notify) this.#requestNotifyPermission();
+        this.#renderFocusTask();
     }
 
     // ── Settings ──────────────────────────────────────────────────────────────
@@ -124,6 +126,7 @@ class PomodoroTimer {
                     <img src="${RunningImg}" />
                 </div>
             </div>
+            <div id="focus_task"></div>
         `;
 
         this.#progressPath = this.#main.querySelector('#progress_path');
@@ -149,6 +152,7 @@ class PomodoroTimer {
         this.#loadSettings();
         this.#isCounting = false;
         this.#timePassed = 0;
+        this.#pauseCount = 0;
 
         const pomodoroEl = this.#main.querySelector('#pomodoro');
 
@@ -222,8 +226,70 @@ class PomodoroTimer {
     #onTimerEnd() {
         if (this.#playSound) this.#playAlert();
         if (this.#notify)    this.#sendNotification();
+        const mode = this.#currentMode();
+        this.#recordSession(mode, true);
+        window.dispatchEvent(new CustomEvent('pomodoro-session-end', { detail: { mode } }));
         if (!this.#endlessMode) {
             this.#advanceSession();
+        }
+    }
+
+    // ── Session recording ─────────────────────────────────────────────────────
+
+    #recordSession(mode, completed) {
+        const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        let account       = accounts.find(a => a.name === currentName);
+        if (!account) {
+            account = { name: currentName, settings: {}, tasks: [], stats: {} };
+            accounts.push(account);
+        }
+        if (!account.stats) account.stats = {};
+        if (!account.stats.sessions) account.stats.sessions = [];
+
+        const focusTask = account?.focusTask ?? null;
+        account.stats.sessions.push({
+            mode,
+            completed,
+            duration:    this.#timePassed,
+            pauseCount:  this.#pauseCount,
+            completedAt: new Date().toISOString(),
+            taskTitle:   focusTask?.title ?? null,
+            taskId:      focusTask?.id ?? null,
+        });
+
+        if (completed && mode === 'pomodoro') {
+            this.#updateStreak(account.stats);
+
+            // Increment pomodorosDone on the active focus task
+            if (focusTask?.id) {
+                const taskIdx = (account.tasks ?? []).findIndex(t => t.id === focusTask.id);
+                if (taskIdx !== -1) {
+                    account.tasks[taskIdx].pomodorosDone =
+                        (account.tasks[taskIdx].pomodorosDone ?? 0) + 1;
+                }
+            }
+        }
+
+        localStorage.setItem('accounts', JSON.stringify(accounts));
+        window.dispatchEvent(new CustomEvent('stats-updated'));
+    }
+
+    #updateStreak(stats) {
+        const today     = new Date().toDateString();
+        const lastDate  = stats.lastActiveDate ?? '';
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+        if (lastDate === today) {
+            // already counted today, no change
+        } else if (lastDate === yesterday) {
+            stats.streak = (stats.streak ?? 0) + 1;
+        } else {
+            stats.streak = 1;
+        }
+        stats.lastActiveDate = today;
+        if ((stats.streak ?? 0) > (stats.highestStreak ?? 0)) {
+            stats.highestStreak = stats.streak;
         }
     }
 
@@ -296,6 +362,86 @@ class PomodoroTimer {
         });
     }
 
+    // ── Focus task ────────────────────────────────────────────────────────────
+
+    #renderFocusTask() {
+        const el = this.#main.querySelector('#focus_task');
+        if (!el) return;
+
+        const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        const account     = accounts.find(a => a.name === currentName);
+        if (!account) { el.innerHTML = ''; return; }
+
+        const tasks = account.tasks ?? [];
+
+        // Use stored focusTask if it still exists and isn't done,
+        // otherwise fall back to highest-priority uncompleted task
+        const pinned = account.focusTask
+            ? tasks.find(t => t.id === account.focusTask.id && !t.completed)
+            : null;
+
+        const task = pinned ?? tasks
+            .filter(t => !t.completed)
+            .sort((a, b) => (a.priority ?? 3) - (b.priority ?? 3))[0]
+            ?? null;
+
+        if (!task) { el.innerHTML = ''; return; }
+
+        // Persist fallback choice so other pages stay in sync
+        if (!pinned) {
+            account.focusTask = { id: task.id, title: task.title, mode: task.mode };
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+
+        el.innerHTML = `
+            <div id="focus_task_card">
+                <span class="focus_task_label">Now Focusing</span>
+                <div class="focus_task_row">
+                    <input type="checkbox" id="focus_task_check">
+                    <label for="focus_task_check" class="focus_task_title">${this.#escHtml(task.title)}</label>
+                </div>
+            </div>
+        `;
+
+        el.querySelector('#focus_task_check').addEventListener('change', () => {
+            const titleEl = el.querySelector('.focus_task_title');
+            const card    = el.querySelector('#focus_task_card');
+
+            // 1) Strike through the title
+            titleEl.classList.add('struck');
+
+            // 2) Fade out card after strike finishes
+            setTimeout(() => card.classList.add('fade-out'), 380);
+
+            // 3) Mutate data and load next task after fade completes
+            setTimeout(() => {
+                const allAccounts = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+                const userName    = localStorage.getItem('currentAccount') ?? 'guest';
+                const userAccount = allAccounts.find(a => a.name === userName);
+                if (!userAccount) return;
+
+                const userTasks = userAccount.tasks ?? [];
+                const idx       = userTasks.findIndex(t => t.id === task.id);
+                if (idx !== -1) userTasks[idx].completed = true;
+
+                const next = userTasks
+                    .filter(t => !t.completed)
+                    .sort((a, b) => (a.priority ?? 3) - (b.priority ?? 3))[0] ?? null;
+
+                userAccount.focusTask = next ? { id: next.id, title: next.title, mode: next.mode } : null;
+                localStorage.setItem('accounts', JSON.stringify(allAccounts));
+                this.#renderFocusTask();
+            }, 720);
+        });
+    }
+
+    #escHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
     // ── Events ────────────────────────────────────────────────────────────────
 
     #bindEvents() {
@@ -303,14 +449,19 @@ class PomodoroTimer {
             if (this.#isRunning) {
                 this.#stop();
                 this.#setRunningIcon(false);
+                this.#pauseCount++;
             } else {
                 this.#start();
                 this.#setRunningIcon(true);
             }
         });
 
-        this.#main.querySelector('#btn_restart')
-            .addEventListener('click', () => this.#restart());
+        this.#main.querySelector('#btn_restart').addEventListener('click', () => {
+            if (this.#timePassed > 0) {
+                this.#recordSession(this.#currentMode(), false);
+            }
+            this.#restart();
+        });
 
         window.addEventListener('settings-saved', () => this.#restart());
     }

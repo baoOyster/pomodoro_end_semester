@@ -1,14 +1,9 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 main{
     display: grid;
     grid-template-columns: 300px 1fr;
     padding: 20px;
     gap:20px;
-    /* min-height: 100vh; */
+    min-height: calc(100vh - var(--header-height));
 }
 hr{
     color: #FFCDCD;
@@ -37,6 +32,105 @@ hr{
 #task{
     padding: 20px;
 }
+
+#tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#edit-flag-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border: 1px solid #CAA1A1;
+    border-radius: 20px;
+    background: #fff;
+    color: #4B1E1E;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+#edit-flag-btn:hover {
+    background: #FFE5E5;
+}
+
+/* ── Flag panel ───────────────────────────────────────────────── */
+#flag-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.25);
+    align-items: center;
+    justify-content: center;
+}
+#flag-panel.open {
+    display: flex;
+}
+#flag-panel-card {
+    background: #fff;
+    border: 1px solid #F2D4D4;
+    border-radius: 20px;
+    padding: 24px;
+    width: 320px;
+    box-shadow: 4px 4px 16px rgba(0,0,0,0.18);
+}
+#flag-panel-card h3 {
+    color: #4B1E1E;
+    margin-bottom: 16px;
+}
+.flag-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.flag-row img {
+    width: 18px;
+    height: auto;
+    flex-shrink: 0;
+}
+.flag-row input {
+    flex: 1;
+    border: 1px solid #CAA1A1;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #4B1E1E;
+    outline: none;
+    background: #FFF4F4;
+}
+.flag-panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+.flag-panel-cancel {
+    padding: 7px 16px;
+    border: 1px solid #CAA1A1;
+    border-radius: 20px;
+    background: #fff;
+    color: #4B1E1E;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
+.flag-panel-save {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #FF7272;
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
+.flag-panel-save:hover  { background: #ff5a5a; }
+.flag-panel-cancel:hover { background: #FFE5E5; }
 
 #search-box {
     display: flex;
@@ -69,7 +163,7 @@ hr{
     border-radius: 40px;
     border: 1px solid #CAA1A1;
     gap: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 20px;
 }
 
 .filter-btn {
@@ -110,7 +204,7 @@ hr{
     padding: 8px;
     padding-left: 21px;
     width: 570px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     border-radius: 10px;
     border: 1px solid #471515;
     outline: none;
@@ -234,13 +328,98 @@ input[type="checkbox"]:checked{
 .title_detail{
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bookmark-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+}
+
+.bookmark-wrapper .bookmark {
+    width: 20px;
+    height: auto;
+}
+
+.bookmark-name {
+    font-size: 10px;
+    color: #4B1E1E;
+    text-align: center;
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flag-picker {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #F2D4D4;
+    border-radius: 12px;
+    padding: 14px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+    box-shadow: 2px 4px 14px rgba(0,0,0,0.15);
+    min-width: 110px;
+}
+
+.bookmark-wrapper:hover .flag-picker {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.flag-picker-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.flag-picker-option:hover {
+    background: #FFE5E5;
+}
+
+.flag-picker-option img {
+    width: 16px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.flag-picker-option span {
+    font-size: 12px;
+    color: #4B1E1E;
+    white-space: nowrap;
 }
 .task_detail_content{
     background-color: #fff;
     border: 1px solid #471515;
-    padding: 15px;
+    padding: 15px 20px 20px;
     margin-top: 5px;
     border-radius: 20px;
+}
+
+.task_detail_content > div {
+    margin-top: 12px;
+}
+
+.task_detail_content h4 {
+    margin-bottom: 6px;
 }
 .due-date-text {
     background-color: #FFF7D5;
@@ -307,7 +486,6 @@ textarea {
     border-radius: 15px;
     background-color: #FFFAE4;
     color: #471515;
-    font-size: 9px;
     resize: none; 
     outline: none; 
 
@@ -318,7 +496,7 @@ textarea {
   padding: 8px;
   font-size: 10px;
   border: 1px solid #b23a3a;
-  border-radius: 0;
+  border-radius: 8px;
   background: white;
   color: #4B1E1E;
   cursor: pointer;
@@ -332,4 +510,125 @@ textarea {
     border: 3px solid #FFC2C2;
     padding: 8px 18px;
     border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    margin-top: 12px;
+}
+#btn_start:hover {
+    background-color: #ff5a5a;
+}
+
+/* ── Task states ──────────────────────────────────────────────── */
+.task-selected {
+    border: 2px solid #FF7272 !important;
+}
+.task-completed {
+    opacity: 0.7;
+}
+.task-done {
+    text-decoration: line-through;
+    color: #A28F8F;
+}
+.tasks-empty {
+    color: #A28F8F;
+    font-style: italic;
+    padding: 12px;
+}
+
+/* ── Inline title edit input ──────────────────────────────────── */
+.task-inline-input {
+    font-size: 15px;
+    font-weight: bold;
+    font-style: italic;
+    color: #4B1E1E;
+    border: 1px solid #FF7272;
+    border-radius: 8px;
+    padding: 2px 6px;
+    width: 100%;
+    outline: none;
+    background: #fff;
+}
+
+/* ── Tomato icons in task cards ───────────────────────────────── */
+.tomato-icon {
+    width: 15px;
+    height: auto;
+}
+
+/* ── Pomodoro section in detail panel ─────────────────────────── */
+#pomo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pomo-tomatoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.pomo-tomatoes .tomato-icon {
+    width: 20px;
+    height: auto;
+}
+
+.pomo-count-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pomo-count-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #4B1E1E;
+    width: 48px;
+}
+
+.pomo-count-val {
+    font-weight: bold;
+    color: #4B1E1E;
+    min-width: 20px;
+    text-align: center;
+}
+
+.pomo-btn {
+    background: #FF7272;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pomo-btn:hover {
+    background: #ff5a5a;
+}
+
+/* ── Due-date picker inside detail panel ──────────────────────── */
+.due-date-input {
+    margin-top: 10px;
+    border: 1px solid #F9C64F;
+    border-radius: 20px;
+    background: #FFF7D5;
+    color: #4B1E1E;
+    padding: 4px 8px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* ── Quote box ────────────────────────────────────────────────── */
+.quote-text {
+    font-style: italic;
+    color: #4B1E1E;
+    font-size: 13px;
+    padding: 4px 0;
 }

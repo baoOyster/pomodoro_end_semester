@@ -11,5 +11,10 @@ export default defineConfig({
                 settings: resolve(__dirname, 'settings.html')
             }
         }
+    },
+    server: {
+        allowedHosts: [
+            'premonumental-melita-uncontained.ngrok-free.dev',
+        ]
     }
 });

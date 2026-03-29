@@ -113,5 +113,86 @@
 #history_table thead{
     height: 50px;
     background-color: #F8FAFC;
-    color: #64748B;     
+    color: #64748B;
+}
+#history_table tbody tr:hover {
+    background-color: #F8FAFC;
+}
+#history_table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #334155;
+    border-bottom: 1px solid #F1F5F9;
+}
+#history_table th {
+    padding: 0 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-done {
+    background: #D1FAE5;
+    color: #065F46;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+.status-interrupted {
+    background: #FEE2E2;
+    color: #991B1B;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+.mode-badge {
+    background: #E0E7FF;
+    color: #3730A3;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 4px;
+}
+
+.Switch_timeOptions button.active {
+    background-color: #FF7C7C;
+    color: #fff;
+    border-radius: 8px;
+}
+
+/* ── Bar chart ───────────────────────────────────────────────── */
+.chart-wrapper {
+    margin: 30px 20px 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 20px 16px;
+}
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 160px;
+}
+.chart-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+}
+.chart-bar {
+    width: 100%;
+    min-height: 2px;
+    background: #FF7C7C;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
+}
+.chart-label {
+    font-size: 10px;
+    color: #94A3B8;
+    margin-top: 4px;
+    white-space: nowrap;
 }
