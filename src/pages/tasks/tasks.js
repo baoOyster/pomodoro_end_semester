@@ -115,7 +115,16 @@ class TaskManager {
                 if (e.target === e.currentTarget) this.#closeFlagPanel();
             });
 
+        const closeBtn = document.getElementById('close-detail-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.#selectTask(null);
+            });
+        }
+
         this.#detailEl.style.visibility = 'hidden';
+        this.#detailEl.classList.remove('open');
+        
         this.#renderList();
         this.#renderQuote();
     }
@@ -271,9 +280,11 @@ class TaskManager {
     #renderDetail(task) {
         if (!task) {
             this.#detailEl.style.visibility = 'hidden';
+            this.#detailEl.classList.remove('open');
             return;
         }
         this.#detailEl.style.visibility = 'visible';
+        this.#detailEl.classList.add('open');
 
         const IMG = TaskManager.#IMG;
 
