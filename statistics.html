@@ -70,30 +70,35 @@
                 </div>
                 
                 <div class="chart_container">
-                    <div class="left_col">
-                        <h1>How did you spend your time?</h1>
-                        <div id="bar_chart">
-                            <div class="bar">
-                                <p class="timelable">6am - 12pm</p>
-                                <div class="bar_frame"><div class="track"></div></div>
-                            </div>
-                            <div class="bar">
-                                <p class="timelable">12pm - 6pm</p>
-                                <div class="bar_frame"><div class="track"></div></div>
-                            </div>
-                            <div class="bar">
-                                <p class="timelable">6pm - 12am</p>
-                                <div class="bar_frame"><div class="track"></div></div>
-                            </div>
-                            <div class="bar">
-                                <p class="timelable">12am - 6am</p>
-                                <div class="bar_frame"><div class="track"></div></div>
+                    <div class="chart_wrapper">
+                        <div class="left_col">
+                            <h1>How did you spend your time?</h1>
+                            <div id="bar_chart">
+                                <div class="bar">
+                                    <p class="timelable">6am - 12pm</p>
+                                    <div class="bar_frame"><div class="track"></div></div>
+                                </div>
+                                <div class="bar">
+                                    <p class="timelable">12pm - 6pm</p>
+                                    <div class="bar_frame"><div class="track"></div></div>
+                                </div>
+                                <div class="bar">
+                                    <p class="timelable">6pm - 12am</p>
+                                    <div class="bar_frame"><div class="track"></div></div>
+                                </div>
+                                <div class="bar">
+                                    <p class="timelable">12am - 6am</p>
+                                    <div class="bar_frame"><div class="track"></div></div>
+                                </div>
                             </div>
                         </div>
+                        <div class="right_col">
+                            <canvas id="myDonutCanvas"></canvas>
+                            <div id="task_label"></div>
+                        </div>
                     </div>
-                    <div class="right_col">
-                        <canvas id="myDonutCanvas"></canvas>
-                        <div id="task_label"></div>
+                    <div class="efficient-chart" id="efficient-chart">
+
                     </div>
                 </div>
             </div>

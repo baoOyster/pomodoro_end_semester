@@ -13,6 +13,7 @@ class StatisticsManager {
     #heatMapGrid = document.querySelector('.square_grid');
     #displayDate = new Date();
     #pieChartInstance = null;
+    #efficientChartInstance = null;
 
     constructor() {
         if (document.readyState === 'loading') {
@@ -78,6 +79,8 @@ class StatisticsManager {
         this.#renderHeatMap();
         this.#renderCalendar();
         this.#renderPieChart();
+        this.#renderTimeOfDayChart();
+        this.#renderEfficientChart();
     }
 
     #updateTodayTotalTime() {
@@ -392,6 +395,161 @@ class StatisticsManager {
                     }
                 }
             }
+        });
+    }
+    // ── Time-of-day bar chart ─────────────────────────────────────────────────
+
+    #renderTimeOfDayChart() {
+        const barChart = document.getElementById('bar_chart');
+        if (!barChart) return;
+
+        const slots = [
+            { start: 6,  end: 12 },
+            { start: 12, end: 18 },
+            { start: 18, end: 24 },
+            { start: 0,  end: 6  },
+        ];
+
+        const todayStr = new Date().toDateString();
+        const todaySessions = this.#sessions.filter(s =>
+            s.mode === 'pomodoro' &&
+            s.completed &&
+            new Date(s.completedAt).toDateString() === todayStr
+        );
+
+        const slotMins = slots.map(({ start, end }) =>
+            todaySessions
+                .filter(s => { const h = new Date(s.completedAt).getHours(); return h >= start && h < end; })
+                .reduce((sum, s) => sum + (s.duration ?? 0) / 60, 0)
+        );
+
+        const maxMins = Math.max(...slotMins, 1);
+
+        barChart.querySelectorAll('.bar').forEach((bar, i) => {
+            const track = bar.querySelector('.track');
+            if (!track) return;
+            const pct = (slotMins[i] / maxMins) * 100;
+            track.style.height = '100%';
+            track.style.width = `${pct.toFixed(1)}%`;
+            track.style.background = 'linear-gradient(90deg, #FF7C7C, #ffb3b3)';
+            track.style.borderRadius = '3px';
+            track.style.transition = 'width 0.6s ease';
+
+            const existing = bar.querySelector('.bar-minutes');
+            if (existing) existing.remove();
+            if (slotMins[i] > 0) {
+                const span = document.createElement('span');
+                span.className = 'bar-minutes';
+                span.textContent = `${Math.round(slotMins[i])}m`;
+                bar.appendChild(span);
+            }
+        });
+    }
+
+    // ── Efficient chart ───────────────────────────────────────────────────────
+
+    #renderEfficientChart() {
+        const container = document.getElementById('efficient-chart');
+        if (!container) return;
+
+        const labels = [];
+        const focusedData = [];
+        const interruptedData = [];
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dayStr = d.toDateString();
+            labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' }));
+
+            const daySessions = this.#sessions.filter(s =>
+                s.mode === 'pomodoro' &&
+                s.completed &&
+                new Date(s.completedAt).toDateString() === dayStr
+            );
+            focusedData.push(daySessions.filter(s => (s.pauseCount ?? 0) === 0).length);
+            interruptedData.push(daySessions.filter(s => (s.pauseCount ?? 0) > 0).length);
+        }
+
+        const hasData = focusedData.some(v => v > 0) || interruptedData.some(v => v > 0);
+
+        container.innerHTML = `
+            <h2 class="efficient-chart-title">Focus Quality — Last 7 Days</h2>
+            ${hasData
+                ? '<div class="efficient-chart-canvas-wrap"><canvas id="efficientCanvas"></canvas></div>'
+                : '<p class="efficient-chart-empty">Complete some Pomodoros to see your focus quality here.</p>'}
+        `;
+
+        if (!hasData) return;
+
+        if (this.#efficientChartInstance) {
+            this.#efficientChartInstance.destroy();
+            this.#efficientChartInstance = null;
+        }
+
+        const ctx = document.getElementById('efficientCanvas').getContext('2d');
+        this.#efficientChartInstance = new window.Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Focused (no pauses)',
+                        data: focusedData,
+                        backgroundColor: '#FF7C7C',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        stack: 'sessions',
+                    },
+                    {
+                        label: 'Interrupted',
+                        data: interruptedData,
+                        backgroundColor: '#FFD8D8',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        stack: 'sessions',
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter, sans-serif', size: 11 }, color: '#666' },
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { family: 'Inter, sans-serif', size: 11 }, color: '#666' },
+                        title: { display: true, text: 'Pomodoros', font: { family: 'Inter, sans-serif', size: 12 }, color: '#471515' },
+                        grid: { color: '#f0f0f0' },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Inter, sans-serif', size: 12 },
+                            color: '#471515',
+                            usePointStyle: true,
+                            pointStyleWidth: 12,
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            footer: (items) => {
+                                const total = items.reduce((s, i) => s + i.parsed.y, 0);
+                                const focused = items.find(i => i.datasetIndex === 0)?.parsed.y ?? 0;
+                                const pct = total > 0 ? Math.round(focused / total * 100) : 0;
+                                return `Focus rate: ${pct}%`;
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 }

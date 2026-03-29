@@ -210,11 +210,44 @@
     padding: 20px;
     display: flex;
     flex: 1;
-
+    flex-direction: column;
 }
 .chart_wrapper {
+    display: flex;
+    gap: 20px;
+    flex: 1;
     position: relative;
     padding-bottom: 30px;
+}
+.efficient-chart {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+    margin-top: 8px;
+}
+.efficient-chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    font-style: italic;
+    font-family: 'Inter', sans-serif;
+    color: #471515;
+    margin-bottom: 14px;
+}
+.efficient-chart-canvas-wrap {
+    height: 200px;
+    position: relative;
+}
+.efficient-chart-empty {
+    font-style: italic;
+    color: #7F7F7F;
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+}
+.bar-minutes {
+    font-size: 11px;
+    font-weight: 600;
+    color: #471515;
+    white-space: nowrap;
 }
 .chart_container h1 {
     font-size: 25px;
@@ -271,6 +304,39 @@
     align-items: center;
 }
 
+/* ── Low-height laptop ───────────────────────────────────────────────────── */
+
+@media screen and (max-height: 800px) and (min-width: 769px) {
+    .all_statistic_page_container {
+        padding: 20px;
+        margin: 12px;
+    }
+    .general_tag {
+        margin-bottom: 16px;
+    }
+    .value_display {
+        font-size: 22px;
+        padding: 14px;
+    }
+    #statistic_heat_map_container {
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
+    #month_header {
+        margin-bottom: 12px;
+    }
+    .calendar_and_chart {
+        margin-bottom: 16px;
+    }
+    .calendar_container {
+        padding: 12px;
+    }
+    .chart_container h1 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+}
+
 /* ── Responsive Design ───────────────────────────────────────────────────── */
 
 @media screen and (max-width: 1200px) {
@@ -278,6 +344,9 @@
         flex-direction: column;
     }
     .chart_container {
+        gap: 24px;
+    }
+    .chart_wrapper {
         flex-direction: column;
         gap: 40px;
     }
