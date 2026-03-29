@@ -1,246 +1,399 @@
-class StatisticsPage {
-    #period = 'today'; // 'today' | 'week' | 'month'
+import LogoTransfer from '../../assets/images/Logo_transfer.svg';
+import TomatoImg from '../../assets/images/tomato.svg';
+import ChevronLeft from '../../assets/images/chevron_left.svg';
+import ChevronRight from '../../assets/images/chevron_right.svg';
+import Fire from '../../assets/images/fire.svg';
+
+class StatisticsManager {
+    // ── DOM Elements ──────────────────────────────────────────────────────────
+    #todayTotalTimeDisplay = document.getElementById('today_total_time_value');
+    #progressPercentageText = document.getElementById('progress_percentage');
+    #currentProgressContainer = document.getElementById('current_progress_container');
+    #currentTaskText = document.getElementById('current_task_name');
+    #heatMapGrid = document.querySelector('.square_grid');
+    #displayDate = new Date();
+    #pieChartInstance = null;
 
     constructor() {
-        this.#bindPeriodButtons();
-        this.#render();
-
-        window.addEventListener('settings-saved', () => {
-            setTimeout(() => this.#render(), 0);
-        });
-        window.addEventListener('stats-updated', () => this.#render());
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.#init());
+        } else {
+            this.#init();
+        }
     }
 
-    // ── Storage ───────────────────────────────────────────────────────────────
+    #init() {
+        this.#recordVisit();
+        this.#updateAll();
 
-    #getStats() {
+        // Listen for stats or account changes
+        window.addEventListener('stats-updated', () => this.#updateAll());
+        window.addEventListener('settings-saved', () => this.#updateAll());
+    }
+
+    #recordVisit() {
+        try {
+            const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+            const currentName = localStorage.getItem('currentAccount') || 'guest';
+            const accountIndex = accounts.findIndex(a => a.name === currentName);
+            
+            if (accountIndex === -1) return;
+
+            const account = accounts[accountIndex];
+            if (!account.stats) account.stats = {};
+            if (!Array.isArray(account.stats.visitedDays)) account.stats.visitedDays = [];
+
+            const todayStr = new Date().toDateString();
+            if (!account.stats.visitedDays.includes(todayStr)) {
+                account.stats.visitedDays.push(todayStr);
+                localStorage.setItem('accounts', JSON.stringify(accounts));
+            }
+        } catch (e) {
+            console.error('Failed to record visit:', e);
+        }
+    }
+
+    // ── Data Getters ──────────────────────────────────────────────────────────
+
+    get #account() {
         const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
         const currentName = localStorage.getItem('currentAccount') ?? 'guest';
-        return accounts.find(a => a.name === currentName)?.stats ?? { sessions: [], streak: 0, highestStreak: 0, lastActiveDate: '' };
+        return accounts.find(a => a.name === currentName) || null;
     }
 
-    // ── Period helpers ────────────────────────────────────────────────────────
+    get #sessions() {
+        return this.#account?.stats?.sessions ?? [];
+    }
 
-    #periodStart(period) {
-        const d = new Date();
-        if (period === 'today') {
-            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    get #stats() {
+        return this.#account?.stats ?? { tasksPlanned: 0, tasksDone: 0 };
+    }
+
+    // ── Updaters ──────────────────────────────────────────────────────────────
+
+    #updateAll() {
+        this.#updateTodayTotalTime();
+        this.#updateTomatoProgress();
+        this.#updateCurrentTask();
+        this.#renderHeatMap();
+        this.#renderCalendar();
+        this.#renderPieChart();
+    }
+
+    #updateTodayTotalTime() {
+        const todayStr = new Date().toDateString();
+        
+        // Sum durations (in seconds) for sessions completed today
+        const totalSecondsToday = this.#sessions
+            .filter(s => new Date(s.completedAt).toDateString() === todayStr && s.mode === 'pomodoro')
+            .reduce((sum, s) => sum + (s.duration || 0), 0);
+
+        const totalMinutes = Math.floor(totalSecondsToday / 60);
+        const hours = Math.floor(totalMinutes / 60); 
+        const minutes = totalMinutes % 60; 
+        
+        if (this.#todayTotalTimeDisplay) {
+            this.#todayTotalTimeDisplay.innerText = `${hours} hours ${minutes} minutes`;
         }
-        if (period === 'week') {
-            const day = d.getDay(); // 0=Sun
-            return new Date(d.getFullYear(), d.getMonth(), d.getDate() - day);
+    }
+
+    #updateTomatoProgress() {
+        const planned = this.#stats.tasksPlanned || 0;
+        const done = this.#stats.tasksDone || 0;
+        
+        let percent = planned > 0 ? (done / planned) * 100 : 0;
+        percent = Math.max(0, Math.min(100, Math.round(percent))); 
+        
+        if (this.#progressPercentageText) {
+            this.#progressPercentageText.innerText = `${percent}%`;
         }
-        // month
-        return new Date(d.getFullYear(), d.getMonth(), 1);
-    }
 
-    #prevPeriodRange(period) {
-        const start = this.#periodStart(period);
-        if (period === 'today') {
-            const s = new Date(start); s.setDate(s.getDate() - 1);
-            const e = new Date(start);
-            return { s, e };
+        if (this.#currentProgressContainer) {
+            this.#currentProgressContainer.innerHTML = '';
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block'; 
+            wrapper.style.height = '30px';
+            
+            const emptyTomatoesLayer = document.createElement('div');
+            emptyTomatoesLayer.style.display = 'flex';
+            emptyTomatoesLayer.style.justifyContent = 'space-between';
+            emptyTomatoesLayer.style.gap = '10px';
+            
+            const fullTomatoesLayer = document.createElement('div');
+            fullTomatoesLayer.style.position = 'absolute';
+            fullTomatoesLayer.style.top = '0';
+            fullTomatoesLayer.style.left = '0';
+            fullTomatoesLayer.style.display = 'flex';
+            fullTomatoesLayer.style.gap = '10px';
+            fullTomatoesLayer.style.overflow = 'hidden'; 
+            fullTomatoesLayer.style.width = `${percent}%`;
+            fullTomatoesLayer.style.transition = 'width 0.5s ease-in-out';
+            
+            for (let i = 0; i < 10; i++) {
+                const emptyImg = document.createElement('img');
+                emptyImg.src = LogoTransfer;
+                emptyImg.style.width = '50px'; 
+                emptyImg.style.height = '50px';
+                
+                const fullImg = document.createElement('img');
+                fullImg.src = TomatoImg;
+                fullImg.style.width = '50px';
+                fullImg.style.height = '50px';
+                
+                emptyTomatoesLayer.appendChild(emptyImg);
+                fullTomatoesLayer.appendChild(fullImg);
+            }
+            
+            wrapper.appendChild(emptyTomatoesLayer);
+            wrapper.appendChild(fullTomatoesLayer);
+            this.#currentProgressContainer.appendChild(wrapper);
         }
-        if (period === 'week') {
-            const e = new Date(start);
-            const s = new Date(start); s.setDate(s.getDate() - 7);
-            return { s, e };
-        }
-        // month
-        const e = new Date(start);
-        const s = new Date(start.getFullYear(), start.getMonth() - 1, 1);
-        return { s, e };
     }
 
-    #filterSessions(sessions, period) {
-        const start = this.#periodStart(period);
-        return sessions.filter(s => new Date(s.completedAt) >= start);
-    }
-
-    #filterPrevious(sessions, period) {
-        const { s, e } = this.#prevPeriodRange(period);
-        return sessions.filter(sess => {
-            const d = new Date(sess.completedAt);
-            return d >= s && d < e;
-        });
-    }
-
-    // ── Render ────────────────────────────────────────────────────────────────
-
-    #render() {
-        const stats    = this.#getStats();
-        const sessions = stats.sessions ?? [];
-        const current  = this.#filterSessions(sessions, this.#period);
-        const prev     = this.#filterPrevious(sessions, this.#period);
-
-        this.#renderSummary(current, prev, stats);
-        this.#renderChart(sessions);
-        this.#renderHistory(current);
-    }
-
-    #renderSummary(current, prev, stats) {
-        // Total focus time (pomodoro sessions only, in hours)
-        const totalSecs = current
-            .filter(s => s.mode === 'pomodoro' && s.completed)
-            .reduce((sum, s) => sum + (s.duration ?? 0), 0);
-        const totalHours = (totalSecs / 3600).toFixed(1);
-
-        const prevSecs = prev
-            .filter(s => s.mode === 'pomodoro' && s.completed)
-            .reduce((sum, s) => sum + (s.duration ?? 0), 0);
-        const timePct = prevSecs === 0
-            ? (totalSecs > 0 ? '+100%' : '0%')
-            : `${totalSecs >= prevSecs ? '+' : ''}${Math.round((totalSecs - prevSecs) / prevSecs * 100)}%`;
-
-        // Completed tasks (completed pomodoro sessions)
-        const doneTasks = current.filter(s => s.mode === 'pomodoro' && s.completed).length;
-        const prevDone  = prev.filter(s => s.mode === 'pomodoro' && s.completed).length;
-        const taskPct   = prevDone === 0
-            ? (doneTasks > 0 ? '+100%' : '0%')
-            : `${doneTasks >= prevDone ? '+' : ''}${Math.round((doneTasks - prevDone) / prevDone * 100)}%`;
-
-        const totalTimeEl   = document.getElementById('totalTime');
-        const evaluateTime  = document.getElementById('evaluateTime');
-        const totalDoneEl   = document.getElementById('totalDoneTasks');
-        const evaluateTask  = document.getElementById('evaluateTask');
-        const streakEl      = document.getElementById('streakCount');
-        const highestEl     = document.getElementById('highestStreakCount');
-
-        if (totalTimeEl)  totalTimeEl.innerHTML  = `<strong>${totalHours}</strong>`;
-        if (evaluateTime) {
-            evaluateTime.textContent = timePct;
-            evaluateTime.style.color = timePct.startsWith('-') ? '#EF4444' : '#10B981';
-        }
-        if (totalDoneEl)  totalDoneEl.innerHTML  = `<strong>${doneTasks}</strong>`;
-        if (evaluateTask) {
-            evaluateTask.textContent = taskPct;
-            evaluateTask.style.color = taskPct.startsWith('-') ? '#EF4444' : '#10B981';
-        }
-        if (streakEl)  streakEl.innerHTML  = `<strong>${stats.streak ?? 0}</strong>`;
-        if (highestEl) highestEl.innerHTML = `<strong>${stats.highestStreak ?? 0}</strong>`;
-    }
-
-    #renderChart(allSessions) {
-        const container = document.getElementById('statistic_container');
-        if (!container) return;
-
-        const current = this.#filterSessions(allSessions, this.#period);
-
-        let buckets, labels;
-
-        if (this.#period === 'today') {
-            // 24 hourly buckets
-            buckets = Array(24).fill(0);
-            labels  = Array.from({ length: 24 }, (_, i) => i === 0 ? '12am' : i < 12 ? `${i}am` : i === 12 ? '12pm' : `${i - 12}pm`);
-            current.filter(s => s.mode === 'pomodoro' && s.completed).forEach(s => {
-                const h = new Date(s.completedAt).getHours();
-                buckets[h] += (s.duration ?? 1500) / 60; // minutes
-            });
-        } else if (this.#period === 'week') {
-            buckets = Array(7).fill(0);
-            labels  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const weekStart = this.#periodStart('week');
-            current.filter(s => s.mode === 'pomodoro' && s.completed).forEach(s => {
-                const diff = Math.floor((new Date(s.completedAt) - weekStart) / 86400000);
-                if (diff >= 0 && diff < 7) buckets[diff] += (s.duration ?? 1500) / 60;
-            });
+    #updateCurrentTask() {
+        const title = this.#account?.focusTask?.title;
+        if (!this.#currentTaskText) return;
+        
+        if (title) {
+            this.#currentTaskText.innerText = title;
+            this.#currentTaskText.style.color = '#B52222';
+            this.#currentTaskText.style.fontStyle = 'normal';
         } else {
-            // month — one bucket per day
-            const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-            buckets = Array(daysInMonth).fill(0);
-            labels  = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-            current.filter(s => s.mode === 'pomodoro' && s.completed).forEach(s => {
-                const day = new Date(s.completedAt).getDate() - 1;
-                if (day >= 0 && day < daysInMonth) buckets[day] += (s.duration ?? 1500) / 60;
-            });
+            this.#currentTaskText.innerText = "Chưa có task";
+            this.#currentTaskText.style.color = '#7F7F7F';
+            this.#currentTaskText.style.fontStyle = 'italic';
         }
-
-        const maxVal = Math.max(...buckets, 1);
-
-        container.innerHTML = `
-            <div class="chart-wrapper">
-                <div class="chart-bars">
-                    ${buckets.map((v, i) => `
-                        <div class="chart-col">
-                            <div class="chart-bar" style="height:${(v / maxVal) * 100}%"
-                                 title="${labels[i]}: ${v.toFixed(0)} min"></div>
-                            <span class="chart-label">${this.#period === 'today' && i % 3 !== 0 ? '' : labels[i]}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
+        
+        this.#currentTaskText.style.textShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)';
+        this.#currentTaskText.style.fontWeight = 'bold';
+        this.#currentTaskText.style.fontSize = '40px';
     }
 
-    #renderHistory(sessions) {
-        const tbody = document.getElementById('history_table_body');
-        if (!tbody) return;
+    #getColorForHours(hours) {
+        if (hours <= 0) return '#FFFBFB'; 
+        if (hours <= 1) return '#FFF7D5'; 
+        if (hours <= 2) return '#FFC2C2'; 
+        if (hours <= 4) return '#FF7C7C'; 
+        return '#BF1919';                 
+    }
 
-        // Show most recent 20 sessions
-        const recent = [...sessions].reverse().slice(0, 20);
+    #renderHeatMap() {
+        if (!this.#heatMapGrid) return;
+        
+        // Group sessions by local date (YYYY-MM-DD)
+        const dailyHours = {};
+        this.#sessions.forEach(s => {
+            if (!s.duration || s.mode !== 'pomodoro') return;
+            // Get local date string 'YYYY-MM-DD' dynamically
+            const dateObj = new Date(s.completedAt);
+            const dateString = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+            
+            dailyHours[dateString] = (dailyHours[dateString] || 0) + s.duration;
+        });
 
-        if (!recent.length) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:20px;">Chưa có dữ liệu</td></tr>`;
+        this.#heatMapGrid.innerHTML = ''; 
+        const today = new Date();
+        const startDate = new Date();
+        startDate.setDate(today.getDate() - 364); 
+        
+        for (let i = 0; i < 365; i++) {
+            const currentSquareDate = new Date(startDate);
+            currentSquareDate.setDate(startDate.getDate() + i);
+            
+            const dateString = `${currentSquareDate.getFullYear()}-${String(currentSquareDate.getMonth() + 1).padStart(2, '0')}-${String(currentSquareDate.getDate()).padStart(2, '0')}`;
+            
+            const square = document.createElement('div');
+            square.className = 'heat_square';
+            
+            const totalSeconds = dailyHours[dateString] || 0;
+            const hoursStudied = totalSeconds / 3600; // float hours
+            
+            square.style.backgroundColor = this.#getColorForHours(hoursStudied);
+            const displayTime = hoursStudied > 0 ? `${hoursStudied.toFixed(1)} hours` : '0 hours';
+            square.title = `${dateString}: ${displayTime}`;
+            
+            this.#heatMapGrid.appendChild(square);
+        }
+
+        // Auto-scroll to end (most recent day)
+        this.#heatMapGrid.scrollLeft = this.#heatMapGrid.scrollWidth;
+    }
+
+    #renderCalendar() {
+        const dayContainer = document.getElementById('day_in_month');
+        const headerTitle = document.getElementById('calendar_and_streak');
+        if (!dayContainer || !headerTitle) return;
+        
+        const year = this.#displayDate.getFullYear();
+        const month = this.#displayDate.getMonth(); 
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        headerTitle.innerHTML = `${monthNames[month]} ${year} 
+            <span>
+                <img src="${ChevronLeft}" id="go_back" alt="back">
+                <img src="${ChevronRight}" id="go_forward" alt="next">
+            </span>`;
+            
+        const firstDayIndex = new Date(year, month, 1).getDay(); 
+        const lastDay = new Date(year, month + 1, 0).getDate(); 
+
+        dayContainer.innerHTML = '';
+        const shiftClick = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+        for (let i = 0; i < shiftClick; i++) {
+            const emptySpan = document.createElement('span');
+            dayContainer.appendChild(emptySpan); 
+        }
+        
+        const today = new Date();
+        const accountStats = this.#account?.stats || {};
+        const visitedDays = Array.isArray(accountStats.visitedDays) ? accountStats.visitedDays : [];
+        
+        for (let i = 1; i <= lastDay; i++) {
+            const daySpan = document.createElement('span');
+            daySpan.className = 'day';
+            daySpan.style.display = 'flex';
+            daySpan.style.justifyContent = 'center';
+            daySpan.style.alignItems = 'center';
+            
+            const iterationDateStr = new Date(year, month, i).toDateString();
+            if (visitedDays.includes(iterationDateStr)) {
+                daySpan.innerHTML = `<img src="${Fire}" style="width:20px;height:20px;" title="${iterationDateStr}" alt="Streak">`;
+            } else {
+                daySpan.innerText = i;
+            }
+            
+            if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                daySpan.style.backgroundColor = '#FF7C7C';
+                daySpan.style.borderRadius = '50%';
+                daySpan.style.color = visitedDays.includes(iterationDateStr) ? 'transparent' : '#342B25';
+            }
+            dayContainer.appendChild(daySpan);
+        }
+        
+        document.getElementById('go_back').onclick = () => {
+            this.#displayDate.setMonth(this.#displayDate.getMonth() - 1);
+            this.#renderCalendar();
+        };
+        document.getElementById('go_forward').onclick = () => {
+            this.#displayDate.setMonth(this.#displayDate.getMonth() + 1);
+            this.#renderCalendar();
+        };
+    }
+
+    #renderPieChart() {
+        const rightCol = document.querySelector('.right_col');
+        if (!rightCol) return;
+
+        const flagLabels = this.#account?.flagLabels || {};
+        
+        // Define standard colors array explicitly referencing colors used in TasksManager
+        const standardColors = ['red', 'yellow', 'purple', 'green', 'blue'];
+        
+        // Check if any standard color is actually customized (has a non-empty label that diffs from default)
+        const hasLabels = standardColors.some(color => {
+            const label = flagLabels[color];
+            return label && label.trim() !== '';
+        });
+
+        if (!hasLabels) {
+            rightCol.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; flex:1; text-align:center; padding: 20px; font-style:italic; color:#7F7F7F; font-size:14px; line-height: 1.5;">Vui lòng dán nhãn (label) cho ít nhất một loại Flag trong trang Tasks để chúng mình có thể phân tích phân bổ thời gian của bạn nhé!</div>';
             return;
         }
 
-        tbody.innerHTML = recent.map(s => {
-            const dur   = this.#formatDuration(s.duration ?? 0);
-            const mode  = { pomodoro: 'Pomodoro', short: 'Nghỉ ngắn', long: 'Nghỉ dài' }[s.mode] ?? s.mode;
-            const title = s.taskTitle ? `${esc(s.taskTitle)} <span class="mode-badge">${mode}</span>` : mode;
-            const date  = new Date(s.completedAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' });
-            const stops = s.pauseCount ?? 0;
-            const badge = s.completed
-                ? `<span class="status-done">Hoàn thành</span>`
-                : `<span class="status-interrupted">Bị dừng</span>`;
-            return `
-                <tr>
-                    <td>${title}</td>
-                    <td>${dur}</td>
-                    <td>${stops}</td>
-                    <td>${badge}</td>
-                    <td>${date}</td>
-                </tr>
-            `;
-        }).join('');
-    }
+        const tasks = this.#account?.tasks || [];
+        const colorCounts = {};
+        let totalPomodoros = 0;
+        
+        tasks.forEach(t => {
+            const c = t.color || 'red';
+            const done = t.pomodorosDone || 0;
+            if (!colorCounts[c]) colorCounts[c] = 0;
+            colorCounts[c] += done;
+            totalPomodoros += done;
+        });
 
-    #formatDuration(secs) {
-        const m = Math.floor(secs / 60);
-        const s = secs % 60;
-        return m > 0 ? `${m}m ${s}s` : `${s}s`;
-    }
+        if (totalPomodoros === 0) {
+            rightCol.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; flex:1; text-align:center; padding: 20px; font-style:italic; color:#7F7F7F; font-size:14px;">Bạn chưa hoàn thành Pomodoro nào để thống kê thể loại.</div>';
+            return;
+        }
 
-    // ── Period buttons ────────────────────────────────────────────────────────
+        // Restore canvas if it was replaced by message previously
+        if (!document.getElementById('myDonutCanvas')) {
+            rightCol.innerHTML = '<canvas id="myDonutCanvas"></canvas><div id="task_label"></div>';
+        }
 
-    #bindPeriodButtons() {
-        const map = {
-            todayButton: 'today',
-            weekButton:  'week',
-            monthButton: 'month',
+        const canvas = document.getElementById('myDonutCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const labels = [];
+        const data = [];
+        const bgColors = [];
+
+        const mapColor = {
+            red: '#FF7C7C',
+            yellow: '#FFF7D5',
+            purple: '#E6E6FA',
+            green: '#C2F0C2',
+            blue: '#C2E0FF'
         };
-        Object.entries(map).forEach(([id, period]) => {
-            const btn = document.getElementById(id);
-            if (!btn) return;
-            if (period === this.#period) btn.classList.add('active');
-            btn.addEventListener('click', () => {
-                this.#period = period;
-                document.querySelectorAll('.Switch_timeOptions button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.#render();
-            });
+
+        for (const color of standardColors) {
+            const count = colorCounts[color] || 0;
+            if (count > 0) {
+                // Use custom label if preset, else capitalize color
+                const labelStr = flagLabels[color] && flagLabels[color].trim() !== '' 
+                    ? flagLabels[color] 
+                    : color.charAt(0).toUpperCase() + color.slice(1);
+                    
+                labels.push(`${labelStr} (${count})`);
+                data.push(count);
+                bgColors.push(mapColor[color] || mapColor.red);
+            }
+        }
+
+        if (this.#pieChartInstance) {
+            this.#pieChartInstance.destroy();
+        }
+
+        // Make canvas responsive
+        canvas.style.maxHeight = "300px";
+
+        this.#pieChartInstance = new window.Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: bgColors,
+                    borderWidth: 1,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { family: 'Inter, sans-serif', size: 12 },
+                            color: '#471515'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 }
 
-function esc(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new StatisticsPage());
-} else {
-    new StatisticsPage();
-}
+new StatisticsManager();
