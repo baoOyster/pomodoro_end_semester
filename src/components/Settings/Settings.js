@@ -2,6 +2,9 @@ import './Settings.css';
 import Toggle from '../ToggleBtn/ToggleBtn';
 import Tomato from '../../assets/images/tomato.svg';
 import Close from '../../assets/images/Close.svg';
+import chime from '../../assets/sounds/chime.mp3';
+import lofi  from '../../assets/sounds/lofi.mp3';
+import bell  from '../../assets/sounds/bell.mp3';
 
 export default class Settings {
     #settingsContainer;
@@ -22,6 +25,7 @@ export default class Settings {
         'groqApiKey',
         'customSounds',
         'endlessMode',
+        'dailyProgressGoal',
     ];
 
     #defaults = {
@@ -41,6 +45,7 @@ export default class Settings {
         groqApiKey:             '',
         customSounds:             '{}',
         endlessMode:              'false',
+        dailyProgressGoal:        '10',
     };
 
     /**
@@ -209,6 +214,10 @@ export default class Settings {
         ].forEach(({ label, key }) => {
             this.#settingsContent.appendChild(this.#createToggleRow(label, key));
         });
+
+        this.#settingsContent.appendChild(
+            this.#createRow('Daily progress goal', this.#createNumberInput('dailyProgressGoal', 4, 20))
+        );
     }
 
     #renderTimers() {
@@ -254,7 +263,26 @@ export default class Settings {
             this.#draft['soundsAlertSound'] = select.value;
         });
 
-        this.#settingsContent.appendChild(this.#createRow('Alert sound', select));
+        const testBtn = document.createElement('button');
+        testBtn.classList.add('settings-test-sound-btn');
+        testBtn.textContent = 'Test';
+        testBtn.addEventListener('click', () => {
+            const soundName = this.#draft['soundsAlertSound'];
+            if (soundName === 'None') return;
+            const builtIn = { Lofi: lofi, Bell: bell, Chime: chime };
+            const customSounds = JSON.parse(this.#draft['customSounds'] ?? '{}');
+            const src = customSounds[soundName] ?? builtIn[soundName];
+            if (!src) return;
+            const audio = new Audio(src);
+            audio.volume = parseInt(this.#draft['alertVolume'] ?? '50', 10) / 100;
+            audio.play().catch(() => {});
+        });
+
+        const soundSelectWrapper = document.createElement('div');
+        soundSelectWrapper.classList.add('settings-sound-select-wrapper');
+        soundSelectWrapper.append(select, testBtn);
+
+        this.#settingsContent.appendChild(this.#createRow('Alert sound', soundSelectWrapper));
         this.#settingsContent.appendChild(
             this.#createToggleRow('Play sound when timer finishes', 'playSoundWhenTimerFinish')
         );

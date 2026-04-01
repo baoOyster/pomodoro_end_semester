@@ -19,7 +19,7 @@
                     <h1 class="value_display" id="today_total_time_value">0 hours 0 minutes</h1>
                 </div>
                 <div id="process" class="general_tag_item">
-                    <p class="general_title">Current progress: <span id="progress_percentage">0%</span></p>
+                    <p class="general_title">Current daily progress: <span id="progress_percentage">0%</span></p>
                     <div class="value_display" id="current_progress_container"></div>
                 </div>
                 <div id="current_task" class="general_tag_item">
@@ -29,16 +29,8 @@
             </div>
 
             <div id="statistic_heat_map_container">
-                <div id="month_header">
-                    <div class="space"></div>
-                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                    <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
-                </div>
-                <div id="statistic_heat_map">
-                    <div class="day_sidebar">
-                        <span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span>
-                    </div>
-                    <div class="square_grid"></div>
+                <div id="heatmap_scroll">
+                    <svg id="heatmap_svg"></svg>
                 </div>
                 <div class="contribute_chart">
                     <p>Less</p>
@@ -73,6 +65,7 @@
                     <div class="chart_wrapper">
                         <div class="left_col">
                             <h1>How did you spend your time?</h1>
+                            <p class="chart-description">Minutes of focused work completed <strong>today</strong>, grouped by time of day. The longest bar is scaled to 100% — hover for exact minutes.</p>
                             <div id="bar_chart">
                                 <div class="bar">
                                     <p class="timelable">6am - 12pm</p>

@@ -63,23 +63,8 @@
     justify-content: space-between;
     margin-bottom: 32px;
 }
-#month_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.day_sidebar {
-    display: grid;
-    grid-template-rows: repeat(7, 18px);
-    gap: 3px;
-    width: 30px;
-    font-size: 12px;
-    font-weight: bold;
-}
-.day_sidebar span {
-    display: flex;
-    align-items: center;
+#heatmap_scroll {
+    overflow-x: auto;
 }
 .contribute_chart {
     display: flex;
@@ -103,25 +88,23 @@
     height: 17px;
     border-radius: 10px;
 }
-#statistic_heat_map {
-    display: flex;
-    gap: 10px;
-}
 
-.square_grid {
-    display: grid;
-    grid-template-rows: repeat(7, 18px); 
-    grid-auto-flow: column; 
-    gap: 3px;
-    flex: 1; 
-    overflow-x: auto; 
+.heatmap-tooltip {
+    position: fixed;
+    background: #1b1b1b;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    z-index: 9999;
 }
-
-.heat_square {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid #E0E0E0; 
+.heatmap-tooltip.visible {
+    opacity: 1;
 }
 #one {
     background-color: #FFFBFB;
@@ -174,6 +157,11 @@
     align-items: center;
     gap: 10px;
 }
+
+#calendar_and_streak span {
+    display: flex;
+}
+
 #calendar_and_streak img {
     width: 20px;
     height: 20px;
@@ -230,7 +218,22 @@
     font-style: italic;
     font-family: 'Inter', sans-serif;
     color: #471515;
+    margin-bottom: 6px;
+}
+.efficient-chart-description {
+    font-size: 12px;
+    color: #7F7F7F;
+    font-family: 'Inter', sans-serif;
     margin-bottom: 14px;
+    line-height: 1.5;
+}
+.efficient-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 3px;
+    vertical-align: middle;
 }
 .efficient-chart-canvas-wrap {
     height: 200px;
@@ -254,7 +257,14 @@
     font-weight: bold;
     font-style: italic;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 24px;
+    margin-bottom: 6px;
+}
+.chart-description {
+    font-size: 12px;
+    color: #7F7F7F;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 18px;
+    line-height: 1.5;
 }
 #bar_chart {
     position: relative;
@@ -322,9 +332,7 @@
         padding: 14px 16px;
         margin-bottom: 16px;
     }
-    #month_header {
-        margin-bottom: 12px;
-    }
+
     .calendar_and_chart {
         margin-bottom: 16px;
     }
@@ -394,12 +402,7 @@
         height: 25px !important;
     }
 
-    /* Fix Month Header overflowing */
-    #month_header {
-        overflow-x: auto;
-        gap: 15px;
-        padding-bottom: 10px;
-    }
+
 
     /* Fix Bar Chart overflowing */
     .left_col {

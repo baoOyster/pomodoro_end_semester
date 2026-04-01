@@ -13,10 +13,22 @@ export default class Spotify {
         this.#panel.id = 'spotify-panel';
         document.body.appendChild(this.#panel);
 
+        this.#applyVisibility();
+
         this.#handleCallback().then(() => {
             this.#token = this.#getStoredToken();
             this.#render();
         });
+
+        window.addEventListener('settings-saved', () => this.#applyVisibility());
+    }
+
+    #applyVisibility() {
+        const accounts = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        const account = accounts.find(a => a.name === currentName);
+        const show = (account?.settings?.showSpotifyPlaylist ?? 'true') === 'true';
+        this.#panel.style.display = show ? '' : 'none';
     }
 
     // ── OAuth callback ────────────────────────────────────────────────────────
