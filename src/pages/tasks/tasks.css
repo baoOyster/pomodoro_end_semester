@@ -671,6 +671,36 @@ textarea {
     color: #BF1919;
 }
 
+/* ── Low-height laptop ────────────────────────────────────────── */
+@media screen and (max-height: 800px) and (min-width: 1025px) {
+    main {
+        padding: 12px;
+        gap: 12px;
+    }
+    .today_box {
+        margin: 8px;
+        padding: 10px;
+    }
+    #task {
+        padding: 12px;
+    }
+    #detail {
+        overflow-y: auto;
+        max-height: calc(100vh - var(--header-height) - 24px);
+    }
+    .task-card {
+        padding: 6px 9px;
+        margin-bottom: 6px;
+    }
+    #filter-bar {
+        margin-bottom: 10px;
+    }
+    #search-box,
+    #add_new {
+        margin-bottom: 8px;
+    }
+}
+
 /* ── Responsive Design ────────────────────────────────────────── */
 @media screen and (max-width: 1024px) {
     main {

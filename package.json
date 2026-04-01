@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:seed": "vite --mode seed",
+    "seed": "node ./src/seed/seed.js",
     "build": "vite build",
     "preview": "vite preview"
   },

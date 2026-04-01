@@ -32,7 +32,7 @@ main{
     align-items: center;
 }
 
-#circle_countdown{
+#circle_countdown_wrap {
     position: absolute;
     top: 120px;
 }
@@ -140,8 +140,6 @@ main{
     align-items: center;
     gap: 10px;
     background: #fff;
-    border-radius: 28px;
-    padding: 18px 40px 20px;
     min-width: 360px;
     max-width: 560px;
 }
@@ -207,7 +205,181 @@ main{
     }
 }
 
-@media only screen and (max-width: 500px) {
+
+
+@media only screen and (max-height: 1200px) and (min-width: 1000px) {
+    #clock {
+        transform: scale(0.8);
+        transform-origin: top center;
+    }
+    #circle_countdown_wrap {
+        transform: scale(0.8);
+        transform-origin: top center;
+        top: 110px;
+    }
+    #icons {
+        transform: scale(0.9);
+        top: 650px;
+    }
+    #focus_task {
+        transform: scale(0.9);
+        top: 750px;
+    }
+}
+
+@media only screen and (max-height: 1000px) and (min-width: 1000px) {
+    #clock {
+        transform: scale(0.6);
+        transform-origin: top center;
+        top: 100px
+    }
+    #circle_countdown_wrap {
+        transform: scale(0.6);
+        transform-origin: top center;
+        top: 150px;
+    }
+    #icons {
+        transform: scale(0.8);
+        top: 550px;
+        gap: 60px;
+    }
+    #focus_task {
+        transform: scale(0.8);
+        top: 650px;
+    }
+}
+
+@media only screen and (max-height: 850px) and (min-width: 1000px){
+    #clock {
+        top: 130px;
+    }
+    #circle_countdown_wrap {
+        top: 180px;
+    }
+    #icons {
+        transform: scale(0.7);
+        top: 600px;
+        gap: 60px;
+    }
+    #focus_task {
+        transform: scale(0.7);
+        top: 660px;
+    }
+    #circle_back {
+        top: 300px;
+    }
+}
+
+@media only screen and (max-height: 800px) and (min-width: 1000px){
+    #clock {
+        top: 90px;
+    }
+    #circle_countdown_wrap {
+        top: 140px;
+    }
+    #icons {
+        transform: scale(0.6);
+        top: 550px;
+        gap: 60px;
+    }
+    #focus_task {
+        transform: scale(0.6);
+        top: 620px;
+    }
+    #circle_back {
+        top: 200px;
+    }
+}
+
+@media only screen and (max-height: 750px) and (min-width: 1000px){
+    #clock {
+        /* transform: scale(0.6); */
+        /* transform-origin: top center; */
+        top: 50px;
+    }
+    #circle_countdown_wrap {
+        /* transform: scale(0.6); */
+        /* transform-origin: top center; */
+        top: 100px;
+    }
+    #icons {
+        transform: scale(0.6);
+        top: 500px;
+        gap: 60px;
+    }
+    #focus_task {
+        transform: scale(0.6);
+        top: 550px;
+    }
+    #circle_back {
+        top: 200px;
+    }
+}
+
+@media only screen and (max-height: 700px) and (min-width: 1000px){
+    #clock {
+        top: 20px;
+    }
+    #circle_countdown_wrap {
+        top: 70px;
+    }
+    #icons {
+        top: 470px;
+        gap: 60px;
+    }
+    #focus_task {
+        top: 520px;
+    }
+    #circle_back {
+        top: 200px;
+    }
+}
+
+@media only screen and (max-height: 650px) and (min-width: 1000px){
+    #clock {
+        transform: scale(0.55);
+        top: 0px;
+    }
+    #circle_countdown_wrap {
+        transform: scale(0.55);
+        top: 40px;
+    }
+    #icons {
+        top: 410px;
+        gap: 60px;
+    }
+    #focus_task {
+        top: 465px;
+    }
+    #circle_back {
+        top: 200px;
+    }
+}
+
+@media only screen and (max-height: 650px) and (min-width: 1000px){
+    #clock {
+        transform: scale(0.525);
+        top: 0px;
+    }
+    #circle_countdown_wrap {
+        transform: scale(0.525);
+        top: 40px;
+    }
+    #icons {
+        top: 400px;
+        gap: 60px;
+    }
+    #focus_task {
+        top: 450px;
+    }
+    #circle_back {
+        top: 200px;
+    }
+}
+
+/* @media only screen and (max-width: ) */
+
+@media only screen and (max-width: 500px){
     html, body {
         overflow-y: auto;
     }
@@ -280,5 +452,84 @@ main{
 
     .focus_task_title {
         font-size: 17px;
+    }
+
+    #circle_countdown_wrap {
+        top: 75px;
+    }
+}
+
+@media only screen and (max-width: 400px){
+    main {
+        padding-bottom: 60px;
+        align-items: flex-start;
+    }
+
+    #clock {
+        top: 0;
+        transform: scale(0.8);
+        transform-origin: top center;
+    }
+
+    /* Position only — no transform, so ring-spin animation is never overridden */
+    #circle_countdown_wrap {
+        top: 15px;
+    }
+
+    /* Slightly smaller ring than the 500px breakpoint */
+    #circle_countdown {
+        width: 340px;
+        height: 328px;
+    }
+
+    /* top: 162px / top: 318px already set by max-width:500px — not repeated */
+    #timer_label {
+        font-size: 76px;
+    }
+
+    #mode_label {
+        font-size: 16px;
+    }
+
+    #icons {
+        top: 400px;
+        gap: 30px;
+    }
+
+    .tomato {
+        width: 28px;
+        padding: 0 4px;
+    }
+
+    .btn {
+        width: 42px;
+        height: 42px;
+        padding: 14px;
+    }
+
+    .btn img {
+        width: 30px;
+        height: 30px;
+    }
+
+    #sections p {
+        font-size: 13px;
+    }
+
+    #focus_task {
+        top: 450px;
+        padding: 0 16px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    #focus_task_card {
+        min-width: unset;
+        width: 100%;
+        padding: 10px 16px 12px;
+    }
+
+    .focus_task_title {
+        font-size: 15px;
     }
 }

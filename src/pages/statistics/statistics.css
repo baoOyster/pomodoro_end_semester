@@ -63,23 +63,8 @@
     justify-content: space-between;
     margin-bottom: 32px;
 }
-#month_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.day_sidebar {
-    display: grid;
-    grid-template-rows: repeat(7, 18px);
-    gap: 3px;
-    width: 30px;
-    font-size: 12px;
-    font-weight: bold;
-}
-.day_sidebar span {
-    display: flex;
-    align-items: center;
+#heatmap_scroll {
+    overflow-x: auto;
 }
 .contribute_chart {
     display: flex;
@@ -103,25 +88,23 @@
     height: 17px;
     border-radius: 10px;
 }
-#statistic_heat_map {
-    display: flex;
-    gap: 10px;
-}
 
-.square_grid {
-    display: grid;
-    grid-template-rows: repeat(7, 18px); 
-    grid-auto-flow: column; 
-    gap: 3px;
-    flex: 1; 
-    overflow-x: auto; 
+.heatmap-tooltip {
+    position: fixed;
+    background: #1b1b1b;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    z-index: 9999;
 }
-
-.heat_square {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid #E0E0E0; 
+.heatmap-tooltip.visible {
+    opacity: 1;
 }
 #one {
     background-color: #FFFBFB;
@@ -174,6 +157,11 @@
     align-items: center;
     gap: 10px;
 }
+
+#calendar_and_streak span {
+    display: flex;
+}
+
 #calendar_and_streak img {
     width: 20px;
     height: 20px;
@@ -210,18 +198,73 @@
     padding: 20px;
     display: flex;
     flex: 1;
-
+    flex-direction: column;
 }
 .chart_wrapper {
+    display: flex;
+    gap: 20px;
+    flex: 1;
     position: relative;
     padding-bottom: 30px;
+}
+.efficient-chart {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+    margin-top: 8px;
+}
+.efficient-chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    font-style: italic;
+    font-family: 'Inter', sans-serif;
+    color: #471515;
+    margin-bottom: 6px;
+}
+.efficient-chart-description {
+    font-size: 12px;
+    color: #7F7F7F;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+.efficient-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 3px;
+    vertical-align: middle;
+}
+.efficient-chart-canvas-wrap {
+    height: 200px;
+    position: relative;
+}
+.efficient-chart-empty {
+    font-style: italic;
+    color: #7F7F7F;
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+}
+.bar-minutes {
+    font-size: 11px;
+    font-weight: 600;
+    color: #471515;
+    white-space: nowrap;
 }
 .chart_container h1 {
     font-size: 25px;
     font-weight: bold;
     font-style: italic;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 24px;
+    margin-bottom: 6px;
+}
+.chart-description {
+    font-size: 12px;
+    color: #7F7F7F;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 18px;
+    line-height: 1.5;
 }
 #bar_chart {
     position: relative;
@@ -271,6 +314,37 @@
     align-items: center;
 }
 
+/* ── Low-height laptop ───────────────────────────────────────────────────── */
+
+@media screen and (max-height: 800px) and (min-width: 769px) {
+    .all_statistic_page_container {
+        padding: 20px;
+        margin: 12px;
+    }
+    .general_tag {
+        margin-bottom: 16px;
+    }
+    .value_display {
+        font-size: 22px;
+        padding: 14px;
+    }
+    #statistic_heat_map_container {
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
+
+    .calendar_and_chart {
+        margin-bottom: 16px;
+    }
+    .calendar_container {
+        padding: 12px;
+    }
+    .chart_container h1 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+}
+
 /* ── Responsive Design ───────────────────────────────────────────────────── */
 
 @media screen and (max-width: 1200px) {
@@ -278,6 +352,9 @@
         flex-direction: column;
     }
     .chart_container {
+        gap: 24px;
+    }
+    .chart_wrapper {
         flex-direction: column;
         gap: 40px;
     }
@@ -325,12 +402,7 @@
         height: 25px !important;
     }
 
-    /* Fix Month Header overflowing */
-    #month_header {
-        overflow-x: auto;
-        gap: 15px;
-        padding-bottom: 10px;
-    }
+
 
     /* Fix Bar Chart overflowing */
     .left_col {

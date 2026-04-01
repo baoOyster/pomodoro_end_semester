@@ -1,3 +1,4 @@
+import '../seed/seed.js';
 import './style.css';
 import Header from "../components/Header/Header";
 import Settings from "../components/Settings/Settings";

@@ -150,6 +150,9 @@ class TaskManager {
             tasksPlanned: this.#tasks.length,
             tasksDone:    this.#tasks.filter(t => t.completed).length,
         };
+        if (account.focusTask && !this.#tasks.some(t => t.id === account.focusTask.id)) {
+            account.focusTask = null;
+        }
         localStorage.setItem('accounts', JSON.stringify(accounts));
     }
 

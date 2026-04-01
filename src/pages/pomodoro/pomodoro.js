@@ -55,8 +55,8 @@ class PomodoroTimer {
         this.#pathLength = this.#progressPath.getTotalLength();
         this.#progressPath.style.strokeDasharray = this.#pathLength;
         this.#applyMode();
+        this.#tryRestoreState();
         this.#bindEvents();
-        if (this.#notify) this.#requestNotifyPermission();
         this.#renderFocusTask();
     }
 
@@ -89,6 +89,7 @@ class PomodoroTimer {
                 <div id="timer_label">00:00</div>
                 <div id="mode_label"></div>
             </div>
+            <div id="circle_countdown_wrap">
             <svg width="655" height="632" viewBox="0 0 655 632" fill="none"
                  xmlns="http://www.w3.org/2000/svg" id="circle_countdown">
                 <g filter="url(#filter_pomodoro)">
@@ -114,6 +115,7 @@ class PomodoroTimer {
                     </filter>
                 </defs>
             </svg>
+            </div>
             <div id="icons">
                 <div id="btn_restart" class="btn">
                     <img src="${RestartImg}"/>
@@ -221,6 +223,7 @@ class PomodoroTimer {
         this.#sessionIndex     = 0;
         this.#completedInCycle = 0;
         this.#applyMode();
+        this.#clearSavedState();
     }
 
     #onTimerEnd() {
@@ -450,9 +453,12 @@ class PomodoroTimer {
                 this.#stop();
                 this.#setRunningIcon(false);
                 this.#pauseCount++;
+                this.#saveState();
             } else {
+                this.#requestNotifyPermission();
                 this.#start();
                 this.#setRunningIcon(true);
+                this.#saveState();
             }
         });
 
@@ -464,6 +470,62 @@ class PomodoroTimer {
         });
 
         window.addEventListener('settings-saved', () => this.#restart());
+        window.addEventListener('beforeunload', () => this.#saveState());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') this.#saveState();
+        });
+    }
+
+    // ── State persistence ─────────────────────────────────────────────────────
+
+    #saveState() {
+        const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        const account     = accounts.find(a => a.name === currentName);
+        if (!account) return;
+        account.pomodoroState = {
+            timePassed:       this.#timePassed,
+            sessionIndex:     this.#sessionIndex,
+            completedInCycle: this.#completedInCycle,
+            pauseCount:       this.#pauseCount,
+            savedAt:          new Date().toISOString(),
+        };
+        localStorage.setItem('accounts', JSON.stringify(accounts));
+    }
+
+    #tryRestoreState() {
+        const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        const account     = accounts.find(a => a.name === currentName);
+        const state       = account?.pomodoroState;
+        if (!state?.savedAt) return;
+        // Discard states older than 24 hours
+        if (Date.now() - new Date(state.savedAt).getTime() > 86_400_000) return;
+
+        this.#sessionIndex     = state.sessionIndex     ?? 0;
+        this.#completedInCycle = state.completedInCycle ?? 0;
+        this.#timePassed       = state.timePassed       ?? 0;
+        this.#pauseCount       = state.pauseCount       ?? 0;
+
+        if (this.#endlessMode) {
+            this.#timerLabel.textContent = this.#formatTime(this.#timePassed);
+        } else {
+            this.#totalTime = this.#durationFor(this.#currentMode());
+            if (this.#timePassed >= this.#totalTime) return;
+            const labels = { pomodoro: 'Pomodoro', short: 'Short Break', long: 'Long Break' };
+            this.#modeLabel.textContent = labels[this.#currentMode()];
+            this.#updateVisual();
+            this.#updateTomatos();
+        }
+    }
+
+    #clearSavedState() {
+        const accounts    = JSON.parse(localStorage.getItem('accounts') ?? '[]');
+        const currentName = localStorage.getItem('currentAccount') ?? 'guest';
+        const account     = accounts.find(a => a.name === currentName);
+        if (!account) return;
+        delete account.pomodoroState;
+        localStorage.setItem('accounts', JSON.stringify(accounts));
     }
 }
 

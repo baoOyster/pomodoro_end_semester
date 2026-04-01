@@ -187,7 +187,7 @@
 }
 
 #agent-panel.open .agent-popup {
-    max-height: 480px;
+    max-height: min(480px, 70vh);
     opacity: 1;
     pointer-events: all;
     transform: translateY(0) scale(1);
@@ -198,7 +198,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: 400px;
+    max-height: min(400px, calc(70vh - 80px));
     opacity: 1;
     transition: max-height 0.3s ease, opacity 0.25s ease;
 }
@@ -269,7 +269,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-height: 120px;
+    min-height: 80px;
 }
 
 .agent-msg {

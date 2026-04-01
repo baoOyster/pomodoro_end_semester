@@ -10,7 +10,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    max-height: 560px;
+    max-height: min(560px, 75vh);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     z-index: 10;
 }
@@ -32,7 +32,7 @@
 #spotify-panel .spotify-body {
     overflow: hidden;
     transition: max-height 0.35s ease, opacity 0.25s ease;
-    max-height: 600px;
+    max-height: min(600px, calc(75vh - 50px));
     opacity: 1;
 }
 
