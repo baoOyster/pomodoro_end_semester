@@ -298,7 +298,7 @@ export default class Agent {
                 method:  'POST',
                 headers: {
                     'Content-Type':  'application/json',
-                    'Authorization': `Bearer ${this.#apiKey}`,
+                    'Authorization': `Bearer ${this.#apiKey.replace(/[^\x20-\x7E]/g, '')}`,
                 },
                 body: JSON.stringify({
                     model:    'llama-3.3-70b-versatile',
